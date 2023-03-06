@@ -1,0 +1,33 @@
+- name: Dmesgout
+  hosts: self
+  gather_facts: false
+  tasks:
+    - name: run_Dmesg_command
+      shell: dmesg
+      register: dmesg_output
+
+    - name: demsg_file
+      copy:
+        content: "{{ dmesg_output.stdout }}"
+        dest: /tmp/dmesg_output
+- name: file-creation
+  hosts: self
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: File Create with loop
+      file:
+        path: "/tmp/{{ item }}"
+        state: touch
+      with_items:
+       - 1
+       - 2
+       - 3
+- name: Config and Install
+  hosts: self
+  become: yes
+  roles:
+    - role: /tmp/deployment/install
+      tags: install
+    - role: /tmp/deployment/config
+      tags: config
